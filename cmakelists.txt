@@ -1,0 +1,14 @@
+# Using modern CMake
+cmake_minimum_required(VERSION 3.26)
+
+# Name the project
+project(xxs VERSION 0.1
+            DESCRIPTION "xxs game engine"
+            LANGUAGES CXX)
+
+# Clean output directory 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/executable)
+
+
+add_executable(xxs code/source/main.cpp)
+
