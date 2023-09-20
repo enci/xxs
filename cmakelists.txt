@@ -9,6 +9,14 @@ project(xxs VERSION 0.1
 # Clean output directory 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/executable)
 
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 20)
 
-add_executable(xxs code/source/main.cpp)
+# Add executable
+add_executable(xxs
+    code/source/main.cpp
+    code/source/fileio.cpp)
+
+# Add include directories
+target_include_directories(xxs PUBLIC code/include)
 

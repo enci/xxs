@@ -1,7 +1,9 @@
-#include <iostream>
+#include "log.hpp"
 
 int main()
 {
-    std::cout << "Hello World!" << std::endl;
+    xxs::log::info("Hello World{}", ".");
+    xxs::log::warn("Hello World{}", "?");
+    xxs::log::error("Hello World{}", "!");
     return 0;
 }
