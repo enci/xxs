@@ -18,5 +18,7 @@ add_executable(xxs
     code/source/fileio.cpp)
 
 # Add include directories
-target_include_directories(xxs PUBLIC code/include)
+target_include_directories(xxs
+    PUBLIC code/include
+    PRIVATE external/json)
 
