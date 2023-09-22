@@ -23,6 +23,7 @@ add_executable(xxs
 # Add include directories
 target_include_directories(xxs
     PUBLIC code/include
+    PRIVATE external/
     PRIVATE external/json
     PRIVATE external/sdl)
 
