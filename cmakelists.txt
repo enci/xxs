@@ -18,7 +18,8 @@ add_subdirectory(external/sdl EXCLUDE_FROM_ALL)
 # Add executable
 add_executable(xxs
     code/source/main.cpp
-    code/source/fileio.cpp)
+    code/source/fileio.cpp
+    code/source/device.cpp)
 
 # Add include directories
 target_include_directories(xxs
