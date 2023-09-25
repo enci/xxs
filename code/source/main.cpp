@@ -5,6 +5,7 @@
 #include <fstream>
 #include "fileio.hpp"
 #include "device.hpp"
+#include "render.hpp"
 
 using namespace xxs;
 
@@ -32,12 +33,15 @@ int main()
     auto cfg = parse_config(config);
 
     device::initialize(cfg.width, cfg.height, cfg.title);
+    render::initialize();
     while(device::is_running())
     {
-       device::poll_events();
-       device::swap_buffers();
+        device::poll_events();
+        render::clear();
+        render::render();
+        device::swap_buffers();
     }
     device::shutdown();
-    
+
     return 0;
 }
