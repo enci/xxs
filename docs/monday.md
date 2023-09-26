@@ -1,0 +1,13 @@
+- Install VS and or Xcode
+- Grab VS code or CLion
+- Get the VSC C++ tools
+- Install CMake and Ninja on macOS
+- Create a new folder
+- Create folder for 
+- Create a main.cpp
+- Create CMakeLists.txt
+- Add simple stuff to the cmake file
+- Select the toolchain
+- Run and debug from the bottom
+- Create a launch.json file
+- Run with a short-cut
