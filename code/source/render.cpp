@@ -1,6 +1,7 @@
 #include "render.hpp"
 #include <glm/glm.hpp>
 #include <SDL3/SDL_render.h>
+#include <SDL3_image/SDL_image.h>
 #include "device.hpp"
 #include "log.hpp"
 
@@ -44,6 +45,7 @@ namespace xxs::render::internal
     vector<image> images;
     vector<sprite_entry> sprite_queue;
     SDL_Renderer* renderer = nullptr;
+    SDL_Texture* planet_texture = nullptr;
 }
 
 void render::initialize()
@@ -55,6 +57,9 @@ void render::initialize()
         xxs::log::error("SDL_CreateRenderer() failed: {}!", SDL_GetError());
         return;
     }
+
+    // Load a texture using SDL Image
+    internal::planet_texture = IMG_LoadTexture(internal::renderer, "content/Planet_02.png");
 }
 
 void render::shutdown()
@@ -64,33 +69,16 @@ void render::shutdown()
 
 void render::render()
 {
-    /* fade between shades of red every 3 seconds, from 0 to 255. */
-    static Uint8 r = 0;
-    r = (r + 1) % 255;
-    SDL_SetRenderDrawColor(internal::renderer, r, 0, 0, 255);
-
-    /* you have to draw the whole window every frame. Clearing it makes sure the whole thing is sane. */
-    SDL_RenderClear(internal::renderer);  /* clear whole window to that fade color. */
-
-    /* set the color to white */
-    SDL_SetRenderDrawColor(internal::renderer, 255, 255, 255, 255);
-
-    /* draw a square where the mouse cursor currently is. */
-    SDL_FRect rect;
-    rect.x = 0;
-    rect.y = 0;
-    rect.w = 200;
-    rect.h = 100;
-    SDL_RenderFillRect(internal::renderer, &rect);
-
-    /* put everything we drew to the screen. */
+    // Render the planet texture
+    SDL_RenderTexture(internal::renderer, internal::planet_texture, NULL, NULL);
     SDL_RenderPresent(internal::renderer);
-
 }
 
 void render::clear()
 {
-    int temp = 0;
+    // Clear the screen to black
+    SDL_SetRenderDrawColor(internal::renderer, 0, 0, 0, 255);
+    SDL_RenderClear(internal::renderer);
 }
 	
 render::image_handle render::load_image(const std::string& image_file)

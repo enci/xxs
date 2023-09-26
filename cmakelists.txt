@@ -12,8 +12,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/executable)
 # Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 
-# Add SDL2 support
+# Add SDL3 support
 add_subdirectory(external/sdl EXCLUDE_FROM_ALL)
+
+# Add SDL Image support
+add_subdirectory(external/sdl-image)
 
 # Add executable
 add_executable(xxs
@@ -28,7 +31,8 @@ target_include_directories(xxs
     PRIVATE external/
     PRIVATE external/json
     PRIVATE external/sdl
-    PRIVATE external/glm)
+    PRIVATE external/glm
+    PRIVATE external/sdl-image/include)
 
 # SDL2::SDL2main may or may not be available. It is e.g. required by Windows GUI applications
 if(TARGET SDL2::SDL2main)
@@ -36,5 +40,8 @@ if(TARGET SDL2::SDL2main)
     target_link_libraries(xxs PRIVATE SDL2::SDL2main)
 endif()
 
-# Link to the actual SDL2 library. SDL2::SDL2 is the shared SDL library, SDL2::SDL2-static is the static SDL libarary.
+# Link to the actual SDL3 library. SDL3::SDL3 is the shared SDL library, SDL2::SDL2-static is the static SDL libarary.
 target_link_libraries(xxs PRIVATE SDL3::SDL3)
+
+
+target_link_libraries(xxs PRIVATE SDL3_image::SDL3_image)
