@@ -50,7 +50,6 @@ namespace xxs::render
 		double z,
 		double size,
 		double rotation,
-		color mutiply,
-		color add,
+		color color,
 		unsigned int flags);
 }

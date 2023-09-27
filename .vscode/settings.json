@@ -3,6 +3,8 @@
         "fstream": "cpp",
         "xstring": "cpp",
         "iosfwd": "cpp",
-        "chrono": "cpp"
+        "chrono": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp"
     }
 }

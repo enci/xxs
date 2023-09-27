@@ -1,5 +1,7 @@
 #include "device.hpp"
 #include <SDL.h>
+#include <SDL_opengl.h>
+#include "log.hpp"
 
 using namespace xxs;
 using namespace std;
@@ -24,7 +26,7 @@ void device::initialize(int width, int height, std::string& title)
         title.c_str(),       
         width,
         height,
-        SDL_WINDOW_OPENGL);
+        NULL);
 }
 
 void device::shutdown()
