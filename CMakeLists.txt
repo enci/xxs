@@ -23,7 +23,8 @@ add_executable(xxs
     code/source/main.cpp
     code/source/fileio.cpp
     code/source/device.cpp
-    code/source/render.cpp)
+    code/source/render.cpp
+    code/source/game.cpp)
 
 # Add include directories
 target_include_directories(xxs
@@ -43,5 +44,5 @@ endif()
 # Link to the actual SDL3 library. SDL3::SDL3 is the shared SDL library, SDL2::SDL2-static is the static SDL libarary.
 target_link_libraries(xxs PRIVATE SDL3::SDL3)
 
-
+# Link to the SDL Image library
 target_link_libraries(xxs PRIVATE SDL3_image::SDL3_image)
