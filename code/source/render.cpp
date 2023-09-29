@@ -69,7 +69,7 @@ void render::initialize()
         return;
     }
 
-    SDL_SetRenderScale(internal::renderer, 2.0f, 2.0f);
+    SDL_SetRenderScale(internal::renderer, 4.0f, 4.0f);
 }
 
 void render::shutdown()
@@ -79,14 +79,6 @@ void render::shutdown()
 
 void render::render()
 {
-    // Test render the first image in the list over half the screen
-    auto image = internal::images.begin()->second;
-    SDL_FRect src_rect;
-    src_rect.x = 0;
-    src_rect.y = 0;
-    src_rect.w = image.width;
-    src_rect.h = image.height;
-    
     // Render the entries from the queue with SDL
     for(const auto& se : internal::sprite_queue)
     {
@@ -206,7 +198,6 @@ render::sprite_handle render::create_sprite(
     // Check if the image is valid
     if (!image.texture)
         return render::sprite_handle();
-
 
     // Create a new sprite
     render::internal::sprite sprite;

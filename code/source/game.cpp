@@ -56,7 +56,10 @@ void game::initialize()
     auto sx = width / dx;
     auto sy = height / dy;
 
-    // Create a sprite for somes tiles in the spritesheet.
+    // Create a sprite for some tiles in the spritesheet.
+    internal::ground_sprites.push_back(
+        internal::create_tile_sprite(image_h, 28));
+
     internal::ground_sprites.push_back(
         internal::create_tile_sprite(image_h, 30));
 

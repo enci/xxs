@@ -26,7 +26,7 @@ void device::initialize(int width, int height, std::string& title)
         title.c_str(),       
         width,
         height,
-        NULL);
+        0);
 }
 
 void device::shutdown()
