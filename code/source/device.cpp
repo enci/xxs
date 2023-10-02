@@ -2,6 +2,7 @@
 #include <SDL.h>
 #include <SDL_opengl.h>
 #include "log.hpp"
+#include "input.hpp"
 
 using namespace xxs;
 using namespace std;
@@ -42,7 +43,7 @@ void device::swap_buffers()
 
 void device::poll_events()
 {
-     SDL_Event event;
+    SDL_Event event;
     while(SDL_PollEvent(&event))
     {
         switch(event.type)
@@ -51,7 +52,7 @@ void device::poll_events()
                 internal::running = false;
         }
 
-        // TODO: input::process_event(event)
+        input::process_event(event);
     }
 }
 
