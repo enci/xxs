@@ -9,45 +9,39 @@ namespace xxs::input
     void process_event(const SDL_Event& event);
     void update(double dt);
 
-    enum gamepad_button
+    enum class gamepad_button
     {
-        BUTTON_SOUTH = 0,
-        BUTTON_EAST = 1,
-        BUTTON_WEST = 2,
-        BUTTON_NORTH = 3,
-
-        SHOULDER_LEFT = 4,
-        SHOULDER_RIGHT = 5,
-
-        BUTTON_SELECT = 6,
-        BUTTON_START = 7,
-
-        // Button 8 is not used
-
-        STICK_LEFT = 9,
-        STICK_RIGHT = 10,
-
-        DPAD_UP = 11,
-        DPAD_RIGHT = 12,
-        DPAD_DOWN = 13,
-        DPAD_LEFT = 14
+        south = 0,
+        east = 1,
+        west = 2,
+        north = 3,
+        shoulder_left = 4,
+        shoulder_right = 5,
+        button_select = 6,
+        button_start = 7,
+        stick_left = 9,
+        stick_right = 10,
+        dpad_up = 11,
+        dpad_right = 12,
+        dpad_down = 13,
+        dpad_left = 14
     };
 
-    enum gamepad_axis
+    enum class gamepad_axis
     {
-        STICK_LEFT_X = 0,
-        STICK_LEFT_Y = 1,
-        STICK_RIGHT_X = 2,
-        STICK_RIGHT_Y = 3,
-        TRIGGER_LEFT = 4,
-        TRIGGER_RIGHT = 5
+        stick_left_x = 0,
+        stick_left_y = 1,
+        stick_right_x = 2,
+        stick_right_y = 3,
+        trigger_left = 4,
+        trigger_right = 5
     };
 
-    enum mouse_button {
-
-        MOUSE_BUTTON_LEFT = 0,
-        MOUSE_BUTTON_RIGHT = 1,
-        MOUSE_BUTTON_MIDDLE = 2
+    enum class mouse_button
+    {
+        left = 0,
+        right = 1,
+        middle = 2
     };
 
     double get_axis(gamepad_axis axis);

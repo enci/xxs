@@ -6,6 +6,7 @@
 #include "fileio.hpp"
 #include "device.hpp"
 #include "render.hpp"
+#include "input.hpp"
 #include "game.hpp"
 
 using namespace xxs;
@@ -47,6 +48,7 @@ int main()
     // Initialize xxs modules in order
     device::initialize(cfg.width, cfg.height, cfg.title);
     render::initialize();
+    input::initialize();
     game::initialize();
 
     // Main loop
@@ -54,6 +56,7 @@ int main()
     {
         auto dt = get_delta_time();
         device::poll_events();
+        input::update(dt);
         game::update(dt);
         game::render();
         render::clear();   
@@ -63,6 +66,7 @@ int main()
 
     // Shutdown in reverse order
     game::shutdown();
+    input::shutdown();
     render::shutdown();
     device::shutdown();
 
