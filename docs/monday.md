@@ -1,3 +1,5 @@
+Mondays are great. You start with a fresh 
+- 
 - Install VS and or Xcode
 - Grab VS code or CLion
 - Get the VSC C++ tools

@@ -1,4 +1,4 @@
-# xxs - An eXtra eXtra Small game engine
+# xxs - Game Engine in a Week
 ![GitHub CI](https://github.com/enci/xxs/actions/workflows/cmake-multi-platform.yml/badge.svg)
 
 xxs is an experiment into making the smallest educational game engine possible.
