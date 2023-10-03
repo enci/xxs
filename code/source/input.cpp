@@ -69,14 +69,17 @@ bool input::get_button(gamepad_button button)
 
 bool input::get_button_once(gamepad_button button)
 {
+    return false;
 }
 
 bool input::get_key(int key)
 {
+    return false;
 }
 
 bool input::get_key_once(int key)
 {
+    return false;
 }
 
 SDL_Gamepad* input::internal::get_default_gamepad()

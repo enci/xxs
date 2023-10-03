@@ -47,7 +47,7 @@ namespace xxs::render
 		sprite_handle sprite_h,
 		double x,
 		double y,		
-		double z,
+		double sort,
 		double size,
 		double rotation,
 		color color,

@@ -34,10 +34,10 @@ namespace xxs::render::internal
         sprite_handle sprite_h = {};
         double x = 0.0;
         double y = 0.0;
-        double z = 0.0;
+        double sort = 0.0;
         double scale = 1.0;
         double rotation = 0.0;
-        color color = {};
+        xxs::render::color color = {};
         unsigned int flags = 0;
     };
 
@@ -107,6 +107,15 @@ void render::render()
         dst_rect.h = src_rect.h * se.scale;
 
         SDL_RenderTexture(internal::renderer, image.texture, &src_rect, &dst_rect);
+
+        // Render wireframe of the sprite
+        SDL_SetRenderDrawColor(internal::renderer, 255, 0, 0, 255);
+        SDL_RenderLine(internal::renderer,
+                       se.x, se.y,
+                       se.x + dst_rect.w,
+                       se.y + dst_rect.h);
+        SDL_SetRenderDrawColor(internal::renderer, 0, 0, 255, 255);
+        SDL_RenderPoint(internal::renderer, se.x, se.y);
     }
 
     SDL_RenderPresent(internal::renderer);
@@ -210,7 +219,7 @@ render::sprite_handle render::create_sprite(
     sprite.to = vec2(x1, y1);
 
     // Calculate the hash
-    auto hash = internal::spatial_hash(sprite);    
+    auto hash = internal::spatial_hash(sprite);
 
     // Store the sprite in our list of loaded sprites
     internal::sprites[hash] = sprite;
@@ -223,7 +232,7 @@ void render::render_sprite(
 	render::sprite_handle sprite_h,
 	double x,
 	double y,		
-	double z,
+	double sort,
 	double size,
 	double rotation,
 	color color,
@@ -245,7 +254,7 @@ void render::render_sprite(
     // Store the position
     entry.x = x;
     entry.y = y;
-    entry.z = z;
+    entry.sort = sort;
 
     // Store the scale
     entry.scale = size;
