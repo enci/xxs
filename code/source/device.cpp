@@ -1,6 +1,5 @@
 #include "device.hpp"
 #include <SDL.h>
-#include <SDL_opengl.h>
 #include "log.hpp"
 #include "input.hpp"
 
@@ -16,18 +15,18 @@ namespace xxs::device::internal
     bool running = true;
 }
 
-void device::initialize(int width, int height, std::string& title)
+void device::initialize(int width, int height, int scale, std::string& title)
 {
-    internal::width = width;
-    internal::height = height;
+    internal::width = width * scale;
+    internal::height = height * scale;
     internal::title = title;
 
     auto flags = 0; //SDL_WINDOWPOS_CENTERED_DISPLAY(1);
     SDL_Init(SDL_INIT_VIDEO);
     internal::window = SDL_CreateWindow(
         title.c_str(),       
-        width,
-        height,
+        internal::width,
+        internal::height,
         flags);
 }
 

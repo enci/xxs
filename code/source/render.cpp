@@ -59,6 +59,9 @@ namespace xxs::render::internal
     unordered_map<size_t, sprite> sprites;
     unordered_map<size_t, image> images;
     vector<sprite_entry> sprite_queue;
+    int width = -1;
+    int height = -1;
+    int scale = -1;
     SDL_Renderer* renderer = nullptr;
     SDL_Texture* planet_texture = nullptr;    
 
@@ -91,8 +94,13 @@ namespace xxs::render::internal
     void transform(vec2& v, mat3x3 m) { v = m * vec3(v, 1.0f); }
 }
 
-void render::initialize()
+void render::initialize(int width, int height, int scale)
 {
+    // Store the width, height and scale
+    internal::width = width;
+    internal::height = height;
+    internal::scale = scale;
+
     auto window = xxs::device::get_window();
     internal::renderer = SDL_CreateRenderer(window, NULL, 0);
     if (!internal::renderer)
@@ -101,7 +109,7 @@ void render::initialize()
         return;
     }
 
-    //SDL_SetRenderScale(internal::renderer, 4.0f, 4.0f);
+    SDL_SetRenderScale(internal::renderer, scale, scale);
 }
 
 void render::shutdown()
@@ -112,8 +120,8 @@ void render::shutdown()
 void render::render()
 {
     // Get the screen width and height
-    auto sw = xxs::device::get_width() / 2;
-    auto sh = xxs::device::get_height() / 2;
+    auto sw = internal::width / 2;
+    auto sh = internal::height / 2;
 
     // Calculate a view-projection matrix to go from to SDL screen (pixel) coordinates
     mat3x3 vp = mat3x3(

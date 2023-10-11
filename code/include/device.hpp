@@ -5,7 +5,11 @@ struct SDL_Window;
 
 namespace xxs::device
 {
-	void initialize(int width, int height, std::string& title);
+	void initialize(
+        int width,
+        int height,
+        int scale,
+        std::string& title);
 	void shutdown();
 	void swap_buffers();
 	void poll_events();

@@ -15,6 +15,7 @@ struct config
 {
     int width;
     int height;
+    int scale;
     std::string title;
 };
 
@@ -25,6 +26,7 @@ config parse_config(const std::string& config_str)
     cfg.width = j["width"];
     cfg.height = j["height"];
     cfg.title = j["title"];
+    cfg.scale = j["scale"];
     return cfg;
 }
 
@@ -46,8 +48,8 @@ int main()
     auto cfg = parse_config(config);
 
     // Initialize xxs modules in order
-    device::initialize(cfg.width, cfg.height, cfg.title);
-    render::initialize();
+    device::initialize(cfg.width, cfg.height, cfg.scale,cfg.title);
+    render::initialize(cfg.width, cfg.height, cfg.scale);
     input::initialize();
     game::initialize();
 

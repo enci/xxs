@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <cstdint>
 #include "handle.hpp"
 
 namespace xxs::render
@@ -30,8 +31,8 @@ namespace xxs::render
 		center		= center_x | center_y
 	};
 
-	void initialize();
-	void shutdown();	
+	void initialize(int width, int height, int scale);
+	void shutdown();
 	void render();
 	void clear();
 	image_handle load_image(const std::string& image_file);
