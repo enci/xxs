@@ -49,7 +49,7 @@ namespace game::internal
                 image,
                 (dx * x) / static_cast<double>(width),
                 (dy * y + dy) / static_cast<double>(height),
-                (x * x + dx) / static_cast<double>(width),
+                (dx * x + dx) / static_cast<double>(width),
                 (dy * y) / static_cast<double>(height));
     }
 
@@ -61,12 +61,12 @@ namespace game::internal
 
 void game::initialize()
 {
-    /*
     {   // Create the ground sprites
         auto image_h = render::load_image("assets/forest_/forest_.png");
         int tile_size = 16;
 
-        int ids[] = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
+        //int ids[] = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
+        int ids[] = {30 };
         for(int i = 0; i < 16; ++i)
         {
             for(int j = 0; j < 16; ++j)
@@ -79,6 +79,7 @@ void game::initialize()
         }
     }
 
+    /*
     {   // Add small props in the level
         auto image_h = render::load_image("assets/forest_/forest_ [resources].png");
 
@@ -144,7 +145,7 @@ void game::render()
     {
         for(int j = 0; j < 16; ++j)
         {
-            auto sprite = internal::ground_sprites[i][j];
+            auto sprite = internal::ground_sprites[0][0];
             render::render_sprite(
                 sprite,
                 i * tile_size,
@@ -153,10 +154,11 @@ void game::render()
                 1,
                 0,
                 render::color{255, 255, 255, 255},
-                render::bottom | render::center_x);      
+                render::bottom);
         }
     }
 
+    /*
     // Render the props sprites.
     for(int i = 0; i < 16; ++i)
     {
@@ -174,6 +176,7 @@ void game::render()
                     render::bottom | render::center_x);
         }
     }
+    */
 
     render::render_sprite(
         internal::character_sprite,

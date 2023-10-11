@@ -41,7 +41,7 @@ namespace xxs::render::internal
         double scale = 1.0;
         double rotation = 0.0;
         xxs::render::color color = {};
-        unsigned int flags = 0;
+        unsigned int flags = bottom;
     };
 
     // Binary compatible with SDL_Vertex, but we
@@ -166,7 +166,7 @@ void render::render()
         // Calculate the size of the sprite
         vec2 from(0.0f, 0.0);
         vec2 to(image.width * (sprite.to.x - sprite.from.x),
-                image.height * (sprite.to.y - sprite.from.y));
+                -image.height * (sprite.to.y - sprite.from.y));
 
         // Copy the uv coordinates
         vec2 from_uv = sprite.from;
@@ -253,11 +253,20 @@ void render::render()
                 indices.size());
 
         // Render wireframe of the sprite
-        SDL_SetRenderDrawColor(internal::renderer, 255, 0, 0, 255);
+        SDL_SetRenderDrawColor(internal::renderer, 0, 0, 255, 255);
         SDL_RenderLine(internal::renderer,
                        vertices[0].position.x, vertices[0].position.y,
                        vertices[2].position.x, vertices[2].position.y);
 
+        // Render a dot at the first vertex
+        SDL_SetRenderDrawColor(internal::renderer, 255, 0, 0, 255);
+        SDL_RenderPoint(internal::renderer, vertices[0].position.x, vertices[0].position.y);
+
+        // Render a dot at the anchor
+        SDL_SetRenderDrawColor(internal::renderer, 0, 255, 0, 255);
+        auto anchor_point = vec2(0.0f, 0.0f);
+        internal::transform(anchor_point, mvp);
+        SDL_RenderPoint(internal::renderer, anchor_point.x, anchor_point.y);
     }
 
     SDL_RenderPresent(internal::renderer);
