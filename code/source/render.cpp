@@ -1,10 +1,13 @@
 #include "render.hpp"
 #include <glm/glm.hpp>
+#include <glm/gtx/matrix_transform_2d.hpp>
+#include <glm/gtx/transform.hpp>
 #include <unordered_map>
 #include <SDL3/SDL_render.h>
 #include <SDL3_image/SDL_image.h>
 #include "device.hpp"
 #include "log.hpp"
+#include "tools.hpp"
 
 using namespace xxs;
 using namespace std;
@@ -41,6 +44,15 @@ namespace xxs::render::internal
         unsigned int flags = 0;
     };
 
+    // Binary compatible with SDL_Vertex, but we
+    // can use vector operations on it
+    struct vertex
+    {
+        vec2 position;
+        xxs::render::color color;
+        vec2 tex_coord;
+    };
+
     // This is a spatial hash that will be used to "id" the sprites
     size_t spatial_hash(const sprite& sprite);
 
@@ -57,6 +69,26 @@ namespace xxs::render::internal
         std::hash<T> hasher;
         seed ^= hasher(v) + 0x9e3779b9 + (seed<<6) + (seed>>2);
     }
+
+    SDL_Color to_sdl_color(xxs::render::color c)
+    {
+        SDL_Color color;
+        color.r = c.r;
+        color.g = c.g;
+        color.b = c.b;
+        color.a = c.a;
+        return color;
+    }
+
+    SDL_FPoint to_sdl_fpoint(vec2 v)
+    {
+        SDL_FPoint point;
+        point.x = v.x;
+        point.y = v.y;
+        return point;
+    }
+
+    void transform(vec2& v, mat3x3 m) { v = m * vec3(v, 1.0f); }
 }
 
 void render::initialize()
@@ -69,7 +101,7 @@ void render::initialize()
         return;
     }
 
-    SDL_SetRenderScale(internal::renderer, 4.0f, 4.0f);
+    //SDL_SetRenderScale(internal::renderer, 4.0f, 4.0f);
 }
 
 void render::shutdown()
@@ -79,6 +111,34 @@ void render::shutdown()
 
 void render::render()
 {
+    // Get the screen width and height
+    auto sw = xxs::device::get_width() / 2;
+    auto sh = xxs::device::get_height() / 2;
+
+    // Calculate a view-projection matrix to go from to SDL screen (pixel) coordinates
+    mat3x3 vp = mat3x3(
+            1.0f, 0.0f, 0.0f,
+            0.0f, -1.0f, 0.0f,
+            sw, sh, 1.0f);
+
+
+    // Transform the origin
+    vec2 origin(0.0f, 0.0f);
+    internal::transform(origin, vp);
+
+    // Render a circle around the origin
+    SDL_SetRenderDrawColor(internal::renderer, 255, 0, 255, 255);
+    float radius = sw;
+    float step = 0.1f;
+    for (float angle = 0.0f; angle < 2.0f * 3.141592f; angle += step)
+    {
+        vec2 p0 = vec2(cos(angle) * radius, sin(angle) * radius);
+        vec2 p1 = vec2(cos(angle + step) * radius, sin(angle + step) * radius);
+        internal::transform(p0, vp);
+        internal::transform(p1, vp);
+        SDL_RenderLine(internal::renderer, p0.x, p0.y, p1.x, p1.y);
+    }
+
     // Render the entries from the queue with SDL
     for(const auto& se : internal::sprite_queue)
     {
@@ -92,30 +152,104 @@ void render::render()
         if (!image.texture)
             continue;
 
-        // Fill in the rectangles
-        SDL_FRect src_rect;
-        src_rect.x = sprite.from.x;
-        src_rect.y = sprite.from.y;
-        src_rect.w = sprite.to.x - sprite.from.x;
-        src_rect.h = sprite.to.y - sprite.from.y;
+        // Vertex data
+        std::array<internal::vertex, 4> vertices{};
 
-        // Fill the destination rectangle from the sprite entry
-        SDL_FRect dst_rect;
-        dst_rect.x = se.x;
-        dst_rect.y = se.y;
-        dst_rect.w = src_rect.w * se.scale;
-        dst_rect.h = src_rect.h * se.scale;
+        // Calculate the size of the sprite
+        vec2 from(0.0f, 0.0);
+        vec2 to(image.width * (sprite.to.x - sprite.from.x),
+                image.height * (sprite.to.y - sprite.from.y));
 
-        SDL_RenderTexture(internal::renderer, image.texture, &src_rect, &dst_rect);
+        // Copy the uv coordinates
+        vec2 from_uv = sprite.from;
+        vec2 to_uv = sprite.to;
+
+        // Check if the sprite is flipped
+        if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::flip_x))
+            std::swap(from_uv.x, to_uv.x);
+        if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::flip_y))
+            std::swap(from_uv.y, to_uv.y);
+
+        // Calculate the anchor based on the flags
+        vec2 anchor(0.0f, 0.0f);
+        if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::center_x))
+            anchor.x = (float)((to.x - from.x) * 0.5f);
+        if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::center_y))
+            anchor.y = (float)((to.y - from.y) * 0.5f);
+        else if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::top))
+            anchor.y = (float)(to.y - from.y);
+
+        // Top left
+        vertices[0].position.x = from.x;
+        vertices[0].position.y = from.y;
+        vertices[0].tex_coord.x = sprite.from.x;
+        vertices[0].tex_coord.y = sprite.from.y;
+
+        // Top right
+        vertices[1].position.x = to.x;
+        vertices[1].position.y = from.y;
+        vertices[1].tex_coord.x = sprite.to.x;
+        vertices[1].tex_coord.y = sprite.from.y;
+
+        // Bottom right
+        vertices[2].position.x = to.x;
+        vertices[2].position.y = to.y;
+        vertices[2].tex_coord.x = sprite.to.x;
+        vertices[2].tex_coord.y = sprite.to.y;
+
+        // Bottom left
+        vertices[3].position.x = from.x;
+        vertices[3].position.y = to.y;
+        vertices[3].tex_coord.x = sprite.from.x;
+        vertices[3].tex_coord.y = sprite.to.y;
+
+        // Apply the anchor and color
+        for (auto& v : vertices)
+        {
+            v.position -= anchor;
+            v.color = se.color;
+        }
+
+        // Calculate the rotation matrix
+        mat3x3 rotation = glm::rotate(mat3x3(1.0f), (float)se.rotation);
+
+        // Calculate the scale matrix
+        mat3x3 scale = glm::scale(mat3x3(1.0f), vec2((float)se.scale));
+
+        // Calculate the translation matrix
+        mat3x3 translation = glm::translate(mat3x3(1.0f), vec2((float)se.x, (float)se.y));
+
+        // Calculate the model matrix
+        mat3x3 model = translation * scale * rotation;
+
+        // Calculate the mvp matrix
+        mat3x3 mvp = vp * model;
+
+        // Transform the vertices
+        for (auto& v : vertices)
+            internal::transform(v.position, mvp);
+
+        // Indices
+        std::array<int, 6> indices = {0, 1, 2, 2, 3, 0};
+
+        // This only works because internal::vertex is binary compatible with SDL_Vertex
+        auto sdl_vertices = reinterpret_cast<SDL_Vertex*>(vertices.data());
+
+        // Render the geometry
+        SDL_RenderGeometry(
+                internal::renderer,
+                image.texture,
+                sdl_vertices,
+                vertices.size(),
+                indices.data(),
+                indices.size());
 
         // Render wireframe of the sprite
         SDL_SetRenderDrawColor(internal::renderer, 255, 0, 0, 255);
         SDL_RenderLine(internal::renderer,
-                       se.x, se.y,
-                       se.x + dst_rect.w,
-                       se.y + dst_rect.h);
-        SDL_SetRenderDrawColor(internal::renderer, 0, 0, 255, 255);
-        SDL_RenderPoint(internal::renderer, se.x, se.y);
+                       vertices[0].position.x, vertices[0].position.y,
+                       vertices[2].position.x, vertices[2].position.y);
+
     }
 
     SDL_RenderPresent(internal::renderer);
@@ -153,7 +287,8 @@ render::image_handle render::load_image(const std::string& image_file)
     }
 
     // Query the texture to get its width and height to use in rendering
-    SDL_QueryTexture(image.texture, NULL, NULL, &image.width, &image.height);
+    Uint32 format;
+    SDL_QueryTexture(image.texture, &format, NULL, &image.width, &image.height);
 
     // Store the file name so we can use it to find the image later
     image.file = image_file;
@@ -270,6 +405,21 @@ void render::render_sprite(
 
     // Add the sprite to the queue
     internal::sprite_queue.push_back(entry);
+}
+
+render::sprite_handle render::create_sprite_pixels(
+    render::image_handle image_h,
+    int x0, int y0, int x1, int y1)
+{
+    // Get the image from the handle
+    auto image = internal::images[image_h.id];
+
+    return render::create_sprite(
+        image_h,
+        x0 / (double)image.width,
+        y0 / (double)image.height,
+        x1 / (double)image.width,
+        y1 / (double)image.height);
 }
 
 size_t render::internal::spatial_hash(const render::internal::sprite &sprite)

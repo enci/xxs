@@ -21,13 +21,14 @@ void device::initialize(int width, int height, std::string& title)
     internal::width = width;
     internal::height = height;
     internal::title = title;
-    
+
+    auto flags = 0; //SDL_WINDOWPOS_CENTERED_DISPLAY(1);
     SDL_Init(SDL_INIT_VIDEO);
     internal::window = SDL_CreateWindow(
         title.c_str(),       
         width,
         height,
-        0);
+        flags);
 }
 
 void device::shutdown()

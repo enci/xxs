@@ -43,6 +43,12 @@ namespace xxs::render
         double y0,
         double x1,
         double y1);
+    sprite_handle create_sprite_pixels(
+        image_handle image_h,
+        int x0,
+        int y0,
+        int x1,
+        int y1);
 	void render_sprite(
 		sprite_handle sprite_h,
 		double x,

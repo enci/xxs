@@ -27,7 +27,7 @@ void input::shutdown()
 
 void input::process_event(const SDL_Event &event)
 {
-    xxs::log::info("Processing event {}", event.type);
+    // xxs::log::info("Processing event {}", event.type);
 }
 
 void input::update(double dt)

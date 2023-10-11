@@ -31,13 +31,26 @@ namespace game::internal
         auto width = render::get_image_width(image);
         auto height = render::get_image_height(image);
 
-        auto sx = width / dx;
-        // 0auto sy = height / dy;
+        auto sx = width / dx;;
 
         auto x = index % static_cast<int>(sx);
         auto y = index / static_cast<int>(sx);
 
-        return render::create_sprite(image, dx * x, dy * y, dx * x + dx, dy * y + dy);
+        /*
+        return render::create_sprite(
+            image,
+            (dx * x) / static_cast<double>(width),
+            (dy * y) / static_cast<double>(height),
+            (x * x + dx) / static_cast<double>(width),
+            (dy * y + dy) / static_cast<double>(height));
+        */
+
+        return render::create_sprite(
+                image,
+                (dx * x) / static_cast<double>(width),
+                (dy * y + dy) / static_cast<double>(height),
+                (x * x + dx) / static_cast<double>(width),
+                (dy * y) / static_cast<double>(height));
     }
 
     render::sprite_handle create_tile_sprite(render::image_handle image, int index, int tile_size)
@@ -48,6 +61,7 @@ namespace game::internal
 
 void game::initialize()
 {
+    /*
     {   // Create the ground sprites
         auto image_h = render::load_image("assets/forest_/forest_.png");
         int tile_size = 16;
@@ -102,6 +116,7 @@ void game::initialize()
             }
         }
     }
+    */
 
     {
         auto image_h = render::load_image("assets/playerSprites_/fPlayer_ [human].png");
