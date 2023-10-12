@@ -12,11 +12,15 @@ using namespace glm;
 
 namespace game::internal
 {
-    render::sprite_handle character_sprite;
-    vec2 character_position;
     render::sprite_handle ground_sprites [16][16];
     render::sprite_handle props_sprites [16][16];
 
+    enum layers
+    {
+        ground = 0,
+        props = 1,
+        character = 1
+    };
 
     // Returns a random integer between min and max (inclusive).
     int random_int(int min, int max)
@@ -36,15 +40,6 @@ namespace game::internal
         auto x = index % static_cast<int>(sx);
         auto y = index / static_cast<int>(sx);
 
-        /*
-        return render::create_sprite(
-            image,
-            (dx * x) / static_cast<double>(width),
-            (dy * y) / static_cast<double>(height),
-            (x * x + dx) / static_cast<double>(width),
-            (dy * y + dy) / static_cast<double>(height));
-        */
-
         return render::create_sprite(
                 image,
                 (dx * x) / static_cast<double>(width),
@@ -57,6 +52,142 @@ namespace game::internal
     {
         return create_tile_sprite(image, index, tile_size, tile_size);
     }
+
+    std::vector<render::sprite_handle> create_tile_sprites_range(
+            render::image_handle image, int from_index, int to_index, int tile_size)
+    {
+        std::vector<render::sprite_handle> sprites;
+        for(int i = from_index; i <= to_index; ++i)
+        {
+            sprites.push_back(create_tile_sprite(image, i, tile_size));
+        }
+        return sprites;
+    }
+
+    class animation
+    {
+    public:
+        void update(float dt)
+        {
+            frame_time += dt;
+            if(frame_time > frame_duration)
+            {
+                frame_time = 0.0f;
+                current_frame = (current_frame + 1) % sprites.size();
+            }
+        }
+
+        render::sprite_handle get_current_sprite()
+        {
+            return sprites[current_frame];
+        }
+
+        std::vector<render::sprite_handle> sprites;
+
+    private:
+        int current_frame = 0;
+        float frame_time = 0.0f;
+        float frame_duration = 1.0f / 10.0f;
+    };
+
+    class character
+    {
+    public:
+        character()
+        {
+            current_state = state::idle;
+            current_direction = direction::right;
+
+            auto image_h = render::load_image("assets/playerSprites_/fPlayer_ [human].png");
+            auto tile_size = 32;
+
+            idle_animation.sprites = create_tile_sprites_range(image_h, 8, 11, tile_size);
+            walking_animation.sprites = create_tile_sprites_range(image_h, 16, 23, tile_size);
+        }
+
+        void update(float dt)
+        {
+            // Get the input.
+            auto dx = input::get_axis(input::gamepad_axis::stick_left_x);
+            auto dy = input::get_axis(input::gamepad_axis::stick_left_y);
+
+            // Account for deadzone.
+            auto deadzone = 0.2f;
+            if(abs(dx) < deadzone)
+                dx = 0.0f;
+            if(abs(dy) < deadzone)
+                dy = 0.0f;
+
+            // Update the position.
+            position_x += dx * speed * dt;
+            position_y -= dy * speed * dt;
+
+            // Update the state.
+            if(dx == 0.0f && dy == 0.0f)
+                current_state = state::idle;
+            else
+                current_state = state::walking;
+
+            // Update the direction.
+            if(dx < 0.0f)
+                current_direction = direction::left;
+            else if(dx > 0.0f)
+                current_direction = direction::right;
+
+            // Animate the character.
+            switch(current_state)
+            {
+                case state::idle:
+                    idle_animation.update(dt);
+                    break;
+                case state::walking:
+                    walking_animation.update(dt);
+                    break;
+            }
+        }
+
+        void render()
+        {
+            auto sprite = render::sprite_handle();
+            switch(current_state)
+            {
+                case state::idle:
+                    sprite = idle_animation.get_current_sprite();
+                    break;
+                case state::walking:
+                    sprite = walking_animation.get_current_sprite();
+                    break;
+            }
+
+            int flip = 0;
+            if(current_direction == direction::left)
+                flip = render::flip_x;
+
+            render::render_sprite(
+                    sprite,
+                    position_x,
+                    position_y,
+                    layers::character,
+                    1,
+                    0,
+                    render::color{255, 255, 255, 255},
+                    render::bottom | render::center_x | flip);
+
+        }
+
+        enum class state { idle, walking };
+        enum class direction { left, right };
+        state current_state;
+        direction current_direction;
+        animation idle_animation;
+        animation walking_animation;
+        double position_x = 0.0f;
+        double position_y = 0.0f;
+        double speed = 50.0f;
+
+    };
+
+    class character* player;
 }
 
 void game::initialize()
@@ -65,8 +196,7 @@ void game::initialize()
         auto image_h = render::load_image("assets/forest_/forest_.png");
         int tile_size = 16;
 
-        //int ids[] = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
-        int ids[] = {30 };
+        int ids[] = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
         for(int i = 0; i < 16; ++i)
         {
             for(int j = 0; j < 16; ++j)
@@ -79,7 +209,6 @@ void game::initialize()
         }
     }
 
-    /*
     {   // Add small props in the level
         auto image_h = render::load_image("assets/forest_/forest_ [resources].png");
 
@@ -117,12 +246,9 @@ void game::initialize()
             }
         }
     }
-    */
 
     {
-        auto image_h = render::load_image("assets/playerSprites_/fPlayer_ [human].png");
-        internal::character_sprite = internal::create_tile_sprite(image_h, 8, 32);
-        internal::character_position = vec2(0, 0);
+        internal::player = new class internal::character();
     }
 }
 
@@ -134,31 +260,16 @@ void game::update(float dt)
     auto speed = 100.0f;
     auto dx = input::get_axis(input::gamepad_axis::stick_left_x) * speed * dt;
     auto dy = input::get_axis(input::gamepad_axis::stick_left_y) * speed * dt;
-    internal::character_position += vec2(dx, dy);
+    internal::player->update(dt);
 }
 
 void game::render()
 {
-    // Render the ground sprites.
     int tile_size = 16;
-    for(int i = 0; i < 16; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            auto sprite = internal::ground_sprites[0][0];
-            render::render_sprite(
-                sprite,
-                i * tile_size,
-                j * tile_size,
-                0,
-                1,
-                0,
-                render::color{255, 255, 255, 255},
-                render::bottom);
-        }
-    }
 
-    /*
+    // Render the character sprite.
+    internal::player->render();
+
     // Render the props sprites.
     for(int i = 0; i < 16; ++i)
     {
@@ -167,24 +278,31 @@ void game::render()
             auto sprite = internal::props_sprites[i][j];
             render::render_sprite(
                     sprite,
-                    i * tile_size,
-                    j * tile_size,
-                    0,
-                    1,
+                    i * tile_size - 128,
+                    j * tile_size - 128,
+                    internal::props,
+                1,
                     0,
                     render::color{255, 255, 255, 255},
-                    render::bottom | render::center_x);
+                    render::bottom);
         }
     }
-    */
 
-    render::render_sprite(
-        internal::character_sprite,
-        internal::character_position.x,
-        internal::character_position.y,
-        0,
-        1,
-        0,
-        render::color{255, 255, 255, 255},
-        render::bottom | render::center_x);
+    // Render the ground sprites.
+    for(int i = 0; i < 16; ++i)
+    {
+        for(int j = 0; j < 16; ++j)
+        {
+            auto sprite = internal::ground_sprites[i][j];
+            render::render_sprite(
+                sprite,
+                i * tile_size - 128,
+                j * tile_size - 128,
+                internal::ground,
+                1,
+                0,
+                render::color{255, 255, 255, 255},
+                render::bottom);
+        }
+    }
 }
