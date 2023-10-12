@@ -63,7 +63,8 @@ namespace xxs::render::internal
     int height = -1;
     int scale = -1;
     SDL_Renderer* renderer = nullptr;
-    SDL_Texture* planet_texture = nullptr;    
+    SDL_Texture* planet_texture = nullptr;
+    bool debug_sprites = false;
 
     template <class T>
     inline void hash_combine(std::size_t& seed, const T& v)
@@ -134,18 +135,14 @@ void render::render()
     vec2 origin(0.0f, 0.0f);
     internal::transform(origin, vp);
 
-    // Render a circle around the origin
-    SDL_SetRenderDrawColor(internal::renderer, 255, 0, 255, 255);
-    float radius = sw;
-    float step = 0.1f;
-    for (float angle = 0.0f; angle < 2.0f * 3.141592f; angle += step)
-    {
-        vec2 p0 = vec2(cos(angle) * radius, sin(angle) * radius);
-        vec2 p1 = vec2(cos(angle + step) * radius, sin(angle + step) * radius);
-        internal::transform(p0, vp);
-        internal::transform(p1, vp);
-        SDL_RenderLine(internal::renderer, p0.x, p0.y, p1.x, p1.y);
-    }
+    // Sort the sprite entries by their sort value (or y if the sort is the same)
+    std::stable_sort(internal::sprite_queue.begin(), internal::sprite_queue.end(),
+        [](const render::internal::sprite_entry& a, const render::internal::sprite_entry& b)
+        {
+            if(a.sort == b.sort)
+                return a.y > b.y;
+            return a.sort < b.sort;
+        });
 
     // Render the entries from the queue with SDL
     for(const auto& se : internal::sprite_queue)
@@ -154,7 +151,7 @@ void render::render()
         auto sprite = internal::sprites[se.sprite_h.id];
 
         // Get the image from the handle
-        auto image = internal::images[sprite.image_h.id];
+        const auto& image = internal::images[sprite.image_h.id];
 
         // Check if the image is valid
         if (!image.texture)
@@ -169,14 +166,14 @@ void render::render()
                 -image.height * (sprite.to.y - sprite.from.y));
 
         // Copy the uv coordinates
-        vec2 from_uv = sprite.from;
-        vec2 to_uv = sprite.to;
+        // vec2 from_uv = sprite.from;
+        // vec2 to_uv = sprite.to;
 
         // Check if the sprite is flipped
         if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::flip_x))
-            std::swap(from_uv.x, to_uv.x);
+            std::swap(sprite.from.x, sprite.to.x);
         if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::flip_y))
-            std::swap(from_uv.y, to_uv.y);
+            std::swap(sprite.from.y, sprite.to.y);
 
         // Calculate the anchor based on the flags
         vec2 anchor(0.0f, 0.0f);
@@ -251,6 +248,9 @@ void render::render()
                 vertices.size(),
                 indices.data(),
                 indices.size());
+
+        if(!internal::debug_sprites)
+            continue;
 
         // Render wireframe of the sprite
         SDL_SetRenderDrawColor(internal::renderer, 0, 0, 255, 255);
