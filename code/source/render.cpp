@@ -186,6 +186,8 @@ void render::render()
         vec3 offset = se.flags & xxs::render::sprite_flags::overlay ?
                 vec3(0.0f, 0.0f, 0.0f) :
                 vec3(-internal::offset_x, -internal::offset_y, 0.0f);
+        offset.x = (float)std::round(offset.x * internal::scale) / internal::scale;
+        offset.y = (float)std::round(offset.y * internal::scale) / internal::scale;
 
         // Top left
         vertices[0].position.x = from.x;

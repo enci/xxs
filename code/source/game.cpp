@@ -276,6 +276,10 @@ void game::render()
     // Render the character sprite.
     internal::player->render();
 
+    // Get the player position in tile coordinates.
+    auto player_x = static_cast<int>(internal::player->position_x / tile_size);
+    auto player_y = static_cast<int>(internal::player->position_y / tile_size);
+
     // Render the ground sprites.
     for(int i = 0; i < 16; ++i)
     {
