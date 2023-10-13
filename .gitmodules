@@ -7,3 +7,6 @@
 [submodule "external/sdl-image"]
 	path = external/sdl-image
 	url = https://github.com/libsdl-org/SDL_image.git
+[submodule "external/lua"]
+	path = external/lua
+	url = https://github.com/enci/lua
