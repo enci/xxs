@@ -18,6 +18,9 @@ add_subdirectory(external/sdl EXCLUDE_FROM_ALL)
 # Add SDL Image support
 add_subdirectory(external/sdl-image)
 
+# Add lua
+add_subdirectory(external/lua EXCLUDE_FROM_ALL)
+
 # Add executable
 add_executable(xxs
     code/source/main.cpp
@@ -35,6 +38,7 @@ target_include_directories(xxs
     PRIVATE external/json
     PRIVATE external/sdl
     PRIVATE external/glm
+    PRIVATE external/lua
     PRIVATE external/sdl-image/include)
 
 # SDL2::SDL2main may or may not be available. It is e.g. required by Windows GUI applications
@@ -48,3 +52,6 @@ target_link_libraries(xxs PRIVATE SDL3::SDL3)
 
 # Link to the SDL Image library
 target_link_libraries(xxs PRIVATE SDL3_image::SDL3_image)
+
+# Link to the lua library
+target_link_libraries(xxs PRIVATE lua)

@@ -2,6 +2,11 @@
 #include <vector>
 #include <cstdlib>
 #include <glm/glm.hpp>
+extern "C" {
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 #include "render.hpp"
 #include "input.hpp"
 
@@ -192,6 +197,9 @@ namespace game::internal
 
 void game::initialize()
 {
+    lua_State* L = luaL_newstate();
+    luaL_openlibs(L);
+
     {   // Create the ground sprites
         auto image_h = render::load_image("assets/forest_/forest_.png");
         int tile_size = 16;
