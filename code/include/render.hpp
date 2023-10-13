@@ -38,6 +38,7 @@ namespace xxs::render
 	image_handle load_image(const std::string& image_file);
 	int get_image_width(image_handle image_h);
 	int get_image_height(image_handle image_h);
+    void set_offset(double x, double y);
 	sprite_handle create_sprite(
         image_handle image_h,
         double x0,

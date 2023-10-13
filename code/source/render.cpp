@@ -62,6 +62,8 @@ namespace xxs::render::internal
     int width = -1;
     int height = -1;
     int scale = -1;
+    double offset_x = 0.0;
+    double offset_y = 0.0;
     SDL_Renderer* renderer = nullptr;
     SDL_Texture* planet_texture = nullptr;
     bool debug_sprites = false;
@@ -165,10 +167,6 @@ void render::render()
         vec2 to(image.width * (sprite.to.x - sprite.from.x),
                 -image.height * (sprite.to.y - sprite.from.y));
 
-        // Copy the uv coordinates
-        // vec2 from_uv = sprite.from;
-        // vec2 to_uv = sprite.to;
-
         // Check if the sprite is flipped
         if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::flip_x))
             std::swap(sprite.from.x, sprite.to.x);
@@ -183,6 +181,11 @@ void render::render()
             anchor.y = (float)((to.y - from.y) * 0.5f);
         else if (tools::check_bit_flag_overlap(se.flags, xxs::render::sprite_flags::top))
             anchor.y = (float)(to.y - from.y);
+
+        // Calculate the offset based on the flags
+        vec3 offset = se.flags & xxs::render::sprite_flags::overlay ?
+                vec3(0.0f, 0.0f, 0.0f) :
+                vec3(-internal::offset_x, -internal::offset_y, 0.0f);
 
         // Top left
         vertices[0].position.x = from.x;
@@ -222,7 +225,8 @@ void render::render()
         mat3x3 scale = glm::scale(mat3x3(1.0f), vec2((float)se.scale));
 
         // Calculate the translation matrix
-        mat3x3 translation = glm::translate(mat3x3(1.0f), vec2((float)se.x, (float)se.y));
+        mat3x3 translation = glm::translate(mat3x3(1.0f),
+            vec2((float)se.x - offset.x, (float)se.y - offset.y));
 
         // Calculate the model matrix
         mat3x3 model = translation * scale * rotation;
@@ -344,6 +348,12 @@ int render::get_image_height(image_handle image_h)
 
     // Return the height
     return image.height;
+}
+
+void render::set_offset(double x, double y)
+{
+    internal::offset_x = x;
+    internal::offset_y = y;
 }
 	
 render::sprite_handle render::create_sprite(

@@ -184,10 +184,10 @@ namespace game::internal
         double position_x = 0.0f;
         double position_y = 0.0f;
         double speed = 50.0f;
-
     };
 
     class character* player;
+    vec2 camera_offset(0.0f, 0.0f);
 }
 
 void game::initialize()
@@ -261,48 +261,54 @@ void game::update(float dt)
     auto dx = input::get_axis(input::gamepad_axis::stick_left_x) * speed * dt;
     auto dy = input::get_axis(input::gamepad_axis::stick_left_y) * speed * dt;
     internal::player->update(dt);
+
+    // Lerp the camera to the character.
+    vec2 camera_target(internal::player->position_x, internal::player->position_y);
+    internal::camera_offset = glm::mix(internal::camera_offset, camera_target, dt);
+    render::set_offset(-internal::camera_offset.x, -internal::camera_offset.y);
 }
 
 void game::render()
 {
+
     int tile_size = 16;
 
     // Render the character sprite.
     internal::player->render();
-
-    // Render the props sprites.
-    for(int i = 0; i < 16; ++i)
-    {
-        for(int j = 0; j < 16; ++j)
-        {
-            auto sprite = internal::props_sprites[i][j];
-            render::render_sprite(
-                    sprite,
-                    i * tile_size - 128,
-                    j * tile_size - 128,
-                    internal::props,
-                1,
-                    0,
-                    render::color{255, 255, 255, 255},
-                    render::bottom);
-        }
-    }
 
     // Render the ground sprites.
     for(int i = 0; i < 16; ++i)
     {
         for(int j = 0; j < 16; ++j)
         {
-            auto sprite = internal::ground_sprites[i][j];
-            render::render_sprite(
-                sprite,
-                i * tile_size - 128,
-                j * tile_size - 128,
-                internal::ground,
-                1,
-                0,
-                render::color{255, 255, 255, 255},
-                render::bottom);
+            auto color = render::color{255, 255, 255, 255};
+
+            { // Render the ground
+
+                auto sprite = internal::ground_sprites[i][j];
+                render::render_sprite(
+                        sprite,
+                        i * tile_size - 128,
+                        j * tile_size - 128,
+                        internal::ground,
+                        1,
+                        0,
+                        color,
+                        render::bottom);
+            }
+
+            { // Render the props
+                auto sprite = internal::props_sprites[i][j];
+                render::render_sprite(
+                        sprite,
+                        i * tile_size - 128,
+                        j * tile_size - 128,
+                        internal::props,
+                        1,
+                        0,
+                        color,
+                        render::bottom);
+            }
         }
     }
 }
