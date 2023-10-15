@@ -2,12 +2,12 @@
 #include <string>
 #include <map>
 #include <json.hpp>
-#include <fstream>
 #include "fileio.hpp"
 #include "device.hpp"
 #include "render.hpp"
 #include "input.hpp"
 #include "game.hpp"
+#include "script.hpp"
 
 using namespace xxs;
 
@@ -17,6 +17,7 @@ struct config
     int height;
     int scale;
     std::string title;
+    std::string main_script;
 };
 
 config parse_config(const std::string& config_str)
@@ -27,6 +28,7 @@ config parse_config(const std::string& config_str)
     cfg.height = j["height"];
     cfg.title = j["title"];
     cfg.scale = j["scale"];
+    cfg.main_script = j["script"];
     return cfg;
 }
 
@@ -51,7 +53,8 @@ int main()
     device::initialize(cfg.width, cfg.height, cfg.scale,cfg.title);
     render::initialize(cfg.width, cfg.height, cfg.scale);
     input::initialize();
-    game::initialize();
+    script::initialize(cfg.main_script);
+    game game;
 
     // Main loop
     while(device::is_running())
@@ -59,15 +62,16 @@ int main()
         auto dt = get_delta_time();
         device::poll_events();
         input::update(dt);
-        game::update(dt);
-        game::render();
+        script::update(dt);
+        game.update((float)dt);
+        game.render();
         render::clear();   
         render::render();
         device::swap_buffers();
     }
 
     // Shutdown in reverse order
-    game::shutdown();
+    script::shutdown();
     input::shutdown();
     render::shutdown();
     device::shutdown();

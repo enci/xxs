@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/lua" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/sdl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/sdl-image" vcs="Git" />
   </component>

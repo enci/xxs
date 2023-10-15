@@ -29,7 +29,8 @@ add_executable(xxs
     code/source/render.cpp
     code/source/input.cpp
     code/source/game.cpp
-    code/source/input.cpp)
+    code/source/input.cpp
+        code/source/script_lua.cpp)
 
 # Add include directories
 target_include_directories(xxs
