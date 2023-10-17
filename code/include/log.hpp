@@ -6,7 +6,7 @@
 namespace xxs::log
 {
     static void initialize();
-	
+
 	template<typename FormatString, typename... Args>
 	static void info(const FormatString& fmt, const Args&... args);
 

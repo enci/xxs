@@ -60,4 +60,13 @@ namespace xxs::render
 		double rotation,
 		color color,
 		unsigned int flags);
+    void render_sprite_int(
+            sprite_handle sprite_h,
+            double x,
+            double y,
+            double sort,
+            double size,
+            double rotation,
+            uint32_t color,
+            unsigned int flags);
 }

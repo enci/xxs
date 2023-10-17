@@ -451,6 +451,22 @@ render::sprite_handle render::create_sprite_pixels(
         y1 / (double)image.height);
 }
 
+void
+render::render_sprite_int(
+        render::sprite_handle sprite_h,
+        double x,
+        double y,
+        double sort,
+        double size,
+        double rotation,
+        uint32_t color,
+        unsigned int flags)
+{
+    render::color c;
+    c.integer_value = color;
+    render::render_sprite(sprite_h, x, y, sort, size, rotation, c, flags);
+}
+
 size_t render::internal::spatial_hash(const render::internal::sprite &sprite)
 {
     // This will be the minimal resolution that the spatial hash will differentiate

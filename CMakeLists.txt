@@ -30,7 +30,7 @@ add_executable(xxs
     code/source/input.cpp
     code/source/game.cpp
     code/source/input.cpp
-        code/source/script_lua.cpp)
+    code/source/script_lua.cpp)
 
 # Add include directories
 target_include_directories(xxs
@@ -40,6 +40,7 @@ target_include_directories(xxs
     PRIVATE external/sdl
     PRIVATE external/glm
     PRIVATE external/lua
+    PRIVATE external/sol2/include
     PRIVATE external/sdl-image/include)
 
 # SDL2::SDL2main may or may not be available. It is e.g. required by Windows GUI applications

@@ -54,7 +54,7 @@ int main()
     render::initialize(cfg.width, cfg.height, cfg.scale);
     input::initialize();
     script::initialize(cfg.main_script);
-    game game;
+    //game game;
 
     // Main loop
     while(device::is_running())
@@ -63,8 +63,9 @@ int main()
         device::poll_events();
         input::update(dt);
         script::update(dt);
-        game.update((float)dt);
-        game.render();
+        script::render();
+        //game.update((float)dt);
+        //game.render();
         render::clear();   
         render::render();
         device::swap_buffers();

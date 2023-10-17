@@ -6,5 +6,6 @@
     <mapping directory="$PROJECT_DIR$/external/lua" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/sdl" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/external/sdl-image" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/external/sol2" vcs="Git" />
   </component>
 </project>

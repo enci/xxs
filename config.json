@@ -3,5 +3,5 @@
     "width": 256,
     "height": 256,
     "scale": 4,
-    "script": "assets/main.lua"
+    "script": "assets/forest.lua"
 }
