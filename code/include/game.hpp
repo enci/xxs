@@ -1,8 +1,7 @@
 #pragma once
 #include "render.hpp"
+#include <vector>
 #include <glm/glm.hpp>
-
-#define nodiscard [[nodiscard]]
 
 class animation
 {
@@ -22,7 +21,7 @@ public:
     character();
     void update(float dt);
     void render();
-    nodiscard glm::vec2 get_position () const { return position; }
+    glm::vec2 get_position () const { return position; }
 private:
     enum class state { idle, walking };
     enum class direction { left, right };
