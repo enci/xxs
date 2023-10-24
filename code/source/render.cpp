@@ -66,7 +66,7 @@ namespace xxs::render::internal
     double offset_y = 0.0;
     SDL_Renderer* renderer = nullptr;
     SDL_Texture* planet_texture = nullptr;
-    bool debug_sprites = false;
+    bool debug_sprites = true;
 
     template <class T>
     inline void hash_combine(std::size_t& seed, const T& v)
@@ -306,7 +306,7 @@ render::image_handle render::load_image(const std::string& image_file)
     if (!image.texture)
     {
         xxs::log::error("IMG_LoadTexture() failed: {}!", SDL_GetError());
-        return render::image_handle();
+        return {};
     }
 
     // Query the texture to get its width and height to use in rendering
@@ -462,7 +462,7 @@ render::render_sprite_int(
         uint32_t color,
         unsigned int flags)
 {
-    render::color c;
+    render::color c{};
     c.integer_value = color;
     render::render_sprite(sprite_h, x, y, sort, size, rotation, c, flags);
 }

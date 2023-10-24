@@ -20,7 +20,7 @@ namespace
         auto width = render::get_image_width(image);
         auto height = render::get_image_height(image);
 
-        auto sx = width / dx;;
+        auto sx = width / dx;
 
         auto x = index % static_cast<int>(sx);
         auto y = index / static_cast<int>(sx);

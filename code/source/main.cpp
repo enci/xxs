@@ -8,6 +8,7 @@
 #include "input.hpp"
 #include "game.hpp"
 #include "script.hpp"
+#include "log.hpp"
 
 using namespace xxs;
 
@@ -54,7 +55,7 @@ int main()
     render::initialize(cfg.width, cfg.height, cfg.scale);
     input::initialize();
     script::initialize(cfg.main_script);
-    //game game;
+    game game;
 
     // Main loop
     while(device::is_running())
