@@ -94,6 +94,17 @@ function abs(x)
     return x
 end
 
+function rand(x, y)
+    local co = vec2.new(x, y)
+    co:dot(vec2.new(12.9898, 78.233))
+    local value = math.sin(co.x) * 43758.5453
+    return value - math.floor(value)
+end
+
+function rand_range(rnd, from, to)
+    return round(from + rnd * (to - from))
+end
+
 -------------------------------- animation ------------------------------------
 local animation = {}
 animation.__index = animation
@@ -187,7 +198,7 @@ function character.draw(self)
 end
 
 -------------------------------- main ----------------------------------------
-local player
+local player = nil
 local ground_sprites = {}
 
 -- A game script has a init() function that is called when the game is started.
@@ -197,7 +208,7 @@ function init()
 
     local ids = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
 
-    -- Create sprites
+    --[[ Create sprites
     for i = 0, 15 do
         ground_sprites[i] = {}
         for j = 0, 15 do
@@ -205,6 +216,12 @@ function init()
             index = ids[index]
             ground_sprites[i][j] = create_tile_sprite(image, index, 16, 16)
         end
+    end
+    ]]--
+
+    -- Create sprites
+    for i = 1, #ids do
+        ground_sprites[i] = create_tile_sprite(image, ids[i], 16, 16)
     end
 
     player = character.new()
@@ -222,14 +239,27 @@ end
 function draw()
     -- log("draw")
 
+    local player_tile_pos = vec2.new(
+            round(player.position.x / 16),
+            round(player.position.y / 16))
+    local from_x = player_tile_pos.x - 8
+    local to_x = player_tile_pos.x + 8
+    local from_y = player_tile_pos.y - 8
+    local to_y = player_tile_pos.y + 8
+
+
     -- Render ground
-    for i = 0, 15 do
-        for j = 0, 15 do
+    for i = from_x, to_x do
+        for j = from_y, to_y do
             local x = i * 16
             local y = j * 16
-            render.render_sprite(
-                    ground_sprites[i][j],
-                    x, y, 0, 1.0, 0.0, 0xFFFFFFFF, 0)
+            log("x="..x.." y="..y)
+            local rnd = rand(x, y)
+            log("rnd="..rnd)
+            local idx = rand_range(rnd, 1, #ground_sprites)
+            log("sprite idx="..idx)
+            local sprite = ground_sprites[idx]
+            render.render_sprite(sprite, x, y, 0, 1.0, 0.0, 0xFFFFFFFF, 0)
         end
     end
 
