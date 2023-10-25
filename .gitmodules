@@ -13,3 +13,6 @@
 [submodule "external/sol2"]
 	path = external/sol2
 	url = https://github.com/ThePhD/sol2.git
+[submodule "external/luasocket"]
+	path = external/luasocket
+	url = https://github.com/enci/luasocket.git
