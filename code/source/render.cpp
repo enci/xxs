@@ -66,7 +66,7 @@ namespace xxs::render::internal
     double offset_y = 0.0;
     SDL_Renderer* renderer = nullptr;
     SDL_Texture* planet_texture = nullptr;
-    bool debug_sprites = true;
+    bool debug_sprites = false;
 
     template <class T>
     inline void hash_combine(std::size_t& seed, const T& v)

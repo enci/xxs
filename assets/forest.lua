@@ -63,9 +63,6 @@ function create_tile_sprite(image, index, dx, dy)
     local sx = width / dx
     local x = index % math.floor(sx)
     local y = math.floor(index / math.floor(sx))
-    log("index="..index)
-    log("x="..x)
-    log("y="..y)
     return render.create_sprite(image,
             (dx * x) / width,
             (dy * y + dy) / height,
@@ -92,17 +89,6 @@ function abs(x)
         return -x
     end
     return x
-end
-
-function rand(x, y)
-    local co = vec2.new(x, y)
-    co:dot(vec2.new(12.9898, 78.233))
-    local value = math.sin(co.x) * 43758.5453
-    return value - math.floor(value)
-end
-
-function rand_range(rnd, from, to)
-    return round(from + rnd * (to - from))
 end
 
 -------------------------------- animation ------------------------------------
@@ -200,28 +186,34 @@ end
 -------------------------------- main ----------------------------------------
 local player = nil
 local ground_sprites = {}
+local props_sprites = {}
+local large_props_sprites = {}
+local camera_position = vec2.new(0, 0)
+
 
 -- A game script has a init() function that is called when the game is started.
 -- The init() function is called only once.
 function init()
-    image = render.load_image("assets/forest_/forest_.png")
 
-    local ids = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
-
-    --[[ Create sprites
-    for i = 0, 15 do
-        ground_sprites[i] = {}
-        for j = 0, 15 do
-            local index = math.random(1, #ids)
-            index = ids[index]
-            ground_sprites[i][j] = create_tile_sprite(image, index, 16, 16)
-        end
+    -- Ground
+    local ground_image = render.load_image("assets/forest_/forest_.png")
+    local ground_ids = {30, 31, 32, 33, 52, 53, 54, 55, 76, 77};
+    for i = 1, #ground_ids do
+        ground_sprites[i] = create_tile_sprite(ground_image, ground_ids[i], 16, 16)
     end
-    ]]--
 
-    -- Create sprites
-    for i = 1, #ids do
-        ground_sprites[i] = create_tile_sprite(image, ids[i], 16, 16)
+    -- Props
+    local props_ids = {6, 7, 8, 9, 20, 30, 23, 33, 24, 34, 25, 35, 26, 36, 27, 37, 28, 38, 29, 39};
+    local props_image = render.load_image("assets/forest_/forest_ [resources].png")
+    for i = 1, #props_ids do
+        props_sprites[i] = create_tile_sprite(props_image, props_ids[i], 16, 16)
+    end
+
+    -- Large props
+    local large_props_ids = {0, 1, 5};
+    local large_props_image = render.load_image("assets/forest_/forest_ [resources].png")
+    for i = 1, #large_props_ids do
+        large_props_sprites[i] = create_tile_sprite(large_props_image, large_props_ids[i], 16, 32)
     end
 
     player = character.new()
@@ -230,43 +222,48 @@ end
 -- A game script has a update() function that is called every frame.
 -- The update() function is called repeatedly until the game is stopped.
 function update(dt)
-    -- log("update "..dt)
     player:update(dt)
+
+    -- Update camera
+    camera_position = player.position
 end
 
 -- A game script has a render() function that is called every frame.
 -- The render() function is called repeatedly until the game is stopped.
 function draw()
-    -- log("draw")
-
-    local player_tile_pos = vec2.new(
-            round(player.position.x / 16),
-            round(player.position.y / 16))
-    local from_x = player_tile_pos.x - 8
-    local to_x = player_tile_pos.x + 8
-    local from_y = player_tile_pos.y - 8
-    local to_y = player_tile_pos.y + 8
-
+    local camera_tile_pos = vec2.new(
+            round(camera_position.x / 16),
+            round(camera_position.y / 16))
+    local from_x = camera_tile_pos.x - 9
+    local to_x = camera_tile_pos.x + 8
+    local from_y = camera_tile_pos.y - 9
+    local to_y = camera_tile_pos.y + 8
+    render.set_offset(-camera_position.x, -camera_position.y)
 
     -- Render ground
     for i = from_x, to_x do
         for j = from_y, to_y do
             local x = i * 16
             local y = j * 16
-            log("x="..x.." y="..y)
-            local rnd = rand(x, y)
-            log("rnd="..rnd)
-            local idx = rand_range(rnd, 1, #ground_sprites)
-            log("sprite idx="..idx)
-            local sprite = ground_sprites[idx]
+            math.randomseed(x, y)
+            local grd = math.random(1, #ground_sprites)
+            local sprite = ground_sprites[grd]
             render.render_sprite(sprite, x, y, 0, 1.0, 0.0, 0xFFFFFFFF, 0)
+
+            if math.random() < 0.20 then
+                local prp = math.random(1, #large_props_sprites)
+                local sprite = large_props_sprites[prp]
+                render.render_sprite(sprite, x, y, 2, 1.0, 0.0, 0xFFFFFFFF, 0)
+            elseif math.random() < 0.35 then
+                local prp = math.random(1, #props_sprites)
+                local sprite = props_sprites[prp]
+                render.render_sprite(sprite, x, y, 2, 1.0, 0.0, 0xFFFFFFFF, 0)
+            end
+
         end
     end
 
     player:draw()
-
-    -- render.render_sprite(sprite, 0, 0, 1, 1.0, 0.0, 0xFFFFFFFF, 0)
-    -- render.render_sprite(sprite2, 0, 0, 2, 1.0, 0.0, 0xFFFFFFFF, 0)
 end
 
 -- A game script has a shutdown() function that is called when the game is stopped.
